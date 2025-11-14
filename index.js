@@ -10,6 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 const uri = "mongodb+srv://anwarhossen0258_db_user:OQCMbqzC58hilUz2@cluster0.g6i8ta9.mongodb.net/?appName=Cluster0";
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -18,40 +19,31 @@ const client = new MongoClient(uri, {
   }
 });
 
+const db = client.db('movie');
+const movieCollection = db.collection('movies');
+
+// default route
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-async function run() {
+// POST: add many movies
+app.post('/add-movies', async (req, res) => {
   try {
-    await client.connect();
-    const db = client.db('movie');
-    const movieCollection = db.collection('movies');
+    const moviesData = req.body;
+    let allMovies = [];
 
-    // Add multiple movies
-    app.post('/add-movies', async (req, res) => {
-      try {
-        const moviesData = req.body; 
-        let allMovies = [];
+    for (const category in moviesData) {
+      allMovies = allMovies.concat(moviesData[category]);
+    }
 
-        for (const category in moviesData) {
-          allMovies = allMovies.concat(moviesData[category]);
-        }
-
-        const result = await movieCollection.insertMany(allMovies);
-        res.send(result);
-      } catch (error) {
-        res.status(500).send({ error: error.message });
-      }
-    });
-
-    console.log("MongoDB connected successfully!");
+    const result = await movieCollection.insertMany(allMovies);
+    res.send(result);
+    
   } catch (error) {
-    console.error("MongoDB connection failed:", error);
+    res.status(500).send({ error: error.message });
   }
-}
-
-run().catch(console.dir);
+});
 
 app.listen(port, () => {
   console.log(`Server started on port: ${port}`);
