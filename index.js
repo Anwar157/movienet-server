@@ -112,6 +112,20 @@ async function run() {
       }
     });
 
+    // DELETE: Remove movie from user's collection
+    app.delete("/remove-from-collection/:uid/:movieId", async (req, res) => {
+      const { uid, movieId } = req.params;
+      try {
+        await userCollection.updateOne(
+          { uid },
+          { $pull: { movies: { id: parseInt(movieId) } } }
+        );
+        res.send({ success: true });
+      } catch (err) {
+        res.status(500).send({ error: err.message });
+      }
+    });
+
     // Start the server after DB is connected
     app.listen(port, () => {
       console.log(`Server started on port: ${port}`);
