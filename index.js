@@ -101,6 +101,17 @@ async function run() {
       }
     });
 
+      // GET: Fetch user's collection
+    app.get("/my-collection/:uid", async (req, res) => {
+      const { uid } = req.params;
+      try {
+        const userData = await userCollection.findOne({ uid });
+        res.send(userData?.movies || []);
+      } catch (err) {
+        res.status(500).send({ error: err.message });
+      }
+    });
+
     // Start the server after DB is connected
     app.listen(port, () => {
       console.log(`Server started on port: ${port}`);
