@@ -1,7 +1,7 @@
 console.log("Index file started!");
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,11 +28,14 @@ async function run() {
 
     const db = client.db('movie');
     const movieCollection = db.collection('movies');
+     const userCollection = db.collection('userCollections');
 
     // Default route
     app.get('/', (req, res) => {
       res.send('Hello World!');
     });
+
+    
 
     // POST: Add multiple movies
     app.post('/add-movies', async (req, res) => {
@@ -118,7 +121,7 @@ async function run() {
       try {
         await userCollection.updateOne(
           { uid },
-          { $pull: { movies: { id: parseInt(movieId) } } }
+          { $pull: { movies: { _id: movieId }  } }
         );
         res.send({ success: true });
       } catch (err) {
